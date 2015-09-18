@@ -38,7 +38,7 @@
 #define WINDOW_WIDTH  800
 #define WINDOW_HEIGHT 600
 
-#define MAX_PARTICLES 2000
+#define MAX_PARTICLES 4000
 #define GRAVITY 0.1
 
 //X Windows variables
@@ -64,9 +64,10 @@ struct Particle {
 };
 
 struct Game {
-	Shape box;
+	Shape box[5];
 	Particle particle[MAX_PARTICLES];
 	int n;
+	int lastMousex, lastMousey;
 };
 
 //Function prototypes
@@ -90,10 +91,14 @@ int main(void)
 	game.n=0;
 
 	//declare a box shape
-	game.box.width = 100;
-	game.box.height = 10;
-	game.box.center.x = 120 + 5*65;
-	game.box.center.y = 500 - 5*60;
+	game.box[0].width = 100;
+	game.box[0].height = 10;
+	game.box[0].center.x = 120 + 5*65;
+	game.box[0].center.y = 500 - 5*60;
+	game.box[1].width = 100;
+	game.box[1].height = 10;
+	game.box[1].center.x = 120 + 5*65 + 50;
+	game.box[1].center.y = 500 - 5*60 - 30;
 
 	//start animation
 	while(!done) {
@@ -212,6 +217,9 @@ void check_mouse(XEvent *e, Game *game)
 		    makeParticle(game, e->xbutton.x, y);
 		//if (++n < 10)
 			//return;
+
+		game->lastMousex = e->xbutton.x; 
+		game->lastMousey = y;
 	}
 }
 
@@ -236,6 +244,9 @@ void movement(Game *game)
 	if (game->n <= 0)
 		return;
 
+	for(int i=0; i<10; i++)
+	    makeParticle(game, game->lastMousex, game->lastMousey);
+
 	for(int i=0; i < game->n; i++){
 	        p = &game->particle[i];
 	        p->s.center.x += p->velocity.x;
@@ -243,14 +254,17 @@ void movement(Game *game)
 		p->velocity.y -= GRAVITY;
 
 	//check for collision with shapes...
-	Shape *s = &game->box;
+	for(int j=0; j<2; j++ ){
+	Shape *s = &game->box[j];
 
 	if(p->s.center.y < s->center.y + s->height && 
 		p->s.center.y > s->center.y - s->height &&
 		p->s.center.x >= s->center.x - s->width &&
-		p->s.center.x <= s->center.x + s->width)
+		p->s.center.x <= s->center.x + s->width){
 
-           p->velocity.y *= -1.0;
+           p->velocity.y *= -0.25;
+	   p->s.center.y = s->center.y + s->height + 0.01;
+	}
 	
 	
 	
@@ -258,6 +272,7 @@ void movement(Game *game)
 		//std::cout << "off screen" << std::endl;
 		memcpy(&game->particle[i], &game->particle[game->n-1], sizeof(Particle));
 		game->n--;
+	}
 	}
     }
 }
@@ -271,18 +286,21 @@ void render(Game *game)
 	//draw box
 	Shape *s;
 	glColor3ub(90,140,90);
-	s = &game->box;
-	glPushMatrix();
-	glTranslatef(s->center.x, s->center.y, s->center.z);
-	w = s->width;
-	h = s->height;
-	glBegin(GL_QUADS);
-		glVertex2i(-w,-h);
-		glVertex2i(-w, h);
-		glVertex2i( w, h);
-		glVertex2i( w,-h);
-	glEnd();
-	glPopMatrix();
+
+	for(int j=0; j<2; j++){
+	    s = &game->box[j];
+	    glPushMatrix();
+	    glTranslatef(s->center.x, s->center.y, s->center.z);
+	    w = s->width;
+	    h = s->height;
+	    glBegin(GL_QUADS);
+	    glVertex2i(-w,-h);
+	    glVertex2i(-w, h);
+	    glVertex2i( w, h);
+	    glVertex2i( w,-h);
+	    glEnd();
+	    glPopMatrix();
+	}
 
 	//draw all particles here
 	for(int i=0; i< game->n; i++){
@@ -298,7 +316,7 @@ void render(Game *game)
                 glVertex2i(c->x+w, c->y-h);
 	        glEnd();
 	        glPopMatrix();
-	}
+       }
 }
 
 
