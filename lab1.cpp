@@ -91,14 +91,18 @@ int main(void)
 	game.n=0;
 
 	//declare a box shape
+	/*
 	game.box[0].width = 100;
 	game.box[0].height = 10;
 	game.box[0].center.x = 120 + 5*65;
 	game.box[0].center.y = 500 - 5*60;
-	game.box[1].width = 100;
-	game.box[1].height = 10;
-	game.box[1].center.x = 120 + 5*65 + 50;
-	game.box[1].center.y = 500 - 5*60 - 30;
+	*/
+        for(int i =0; i<5; i++){
+	    game.box[i].width = 100;
+	    game.box[i].height = 10;
+	    game.box[i].center.x = 120 + i*65;
+	    game.box[i].center.y = 500 - i*60;
+	}
 
 	//start animation
 	while(!done) {
@@ -254,7 +258,7 @@ void movement(Game *game)
 		p->velocity.y -= GRAVITY;
 
 	//check for collision with shapes...
-	for(int j=0; j<2; j++ ){
+	for(int j=0; j<5; j++ ){
 	Shape *s = &game->box[j];
 
 	if(p->s.center.y < s->center.y + s->height && 
@@ -287,7 +291,7 @@ void render(Game *game)
 	Shape *s;
 	glColor3ub(90,140,90);
 
-	for(int j=0; j<2; j++){
+	for(int j=0; j<5; j++){
 	    s = &game->box[j];
 	    glPushMatrix();
 	    glTranslatef(s->center.x, s->center.y, s->center.z);
