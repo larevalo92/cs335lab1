@@ -65,6 +65,7 @@ struct Particle {
 
 struct Game {
 	Shape box[5];
+	Shape circle;
 	Particle particle[MAX_PARTICLES];
 	int n;
 	int lastMousex, lastMousey;
@@ -91,18 +92,16 @@ int main(void)
 	game.n=0;
 
 	//declare a box shape
-	/*
-	game.box[0].width = 100;
-	game.box[0].height = 10;
-	game.box[0].center.x = 120 + 5*65;
-	game.box[0].center.y = 500 - 5*60;
-	*/
         for(int i =0; i<5; i++){
 	    game.box[i].width = 100;
 	    game.box[i].height = 10;
 	    game.box[i].center.x = 120 + i*65;
 	    game.box[i].center.y = 500 - i*60;
 	}
+
+	game.circle.center.x = 550;
+	game.circle.center.y = 50;
+	game.circle.radius = 100;
 
 	//start animation
 	while(!done) {
@@ -269,6 +268,25 @@ void movement(Game *game)
            p->velocity.y *= -0.25;
 	   p->s.center.y = s->center.y + s->height + 0.01;
 	}
+
+	//check for circle collision
+	float d0, d1, dist;
+	d0 = p->s.center.x - game->circle.center.x;
+	d1 = p->s.center.y - game->circle.center.y;
+	dist = sqrt(d0*d0 + d1*d1);
+	
+	if(dist <= game->circle.radius) {
+	 //   p->velocity.y = 0.0;
+	//    float v[2];
+	    d0 /= dist;
+	    d1 /= dist;
+	    d0 *= game->circle.radius * 1.01;
+	    d1 *= game->circle.radius * 1.01;
+	    p->s.center.x = game->circle.center.x + d0;
+	    p->s.center.y = game->circle.center.y + d1;
+	    p->velocity.x += d0 * 0.006;
+	    p->velocity.y += d1 * 0.006;
+	}
 	
 	
 	
@@ -285,9 +303,37 @@ void render(Game *game)
 {
 	float w, h;
 	glClear(GL_COLOR_BUFFER_BIT);
-	//Draw shapes...
 
-	//draw box
+	//Draw shapes...
+	static int firsttime = 1;
+	static int verts[60][2];
+	static int n = 60;
+	if(firsttime) {
+	    float angle = 0.0;
+	    float inc = (3.14159 *2.0) / (float)n;
+
+	    for(int i =0; i < n; i++){
+	       verts[i][0] = cos(angle) * game->circle.radius + game->circle.center.x;
+	       verts[i][1] = sin(angle) * game->circle.radius + game->circle.center.y;
+	       angle += inc;
+	    }
+
+
+	    firsttime = 0;
+	}
+
+	    glColor3ub(90, 140, 90);
+            glPushMatrix();
+            glBegin(GL_TRIANGLE_FAN);
+	    for(int i=0; i<n; i++){
+               glVertex2i(verts[i][0], verts[i][1]);
+            }
+            glEnd();
+            glPopMatrix();
+
+
+
+	//draw box, and circle
 	Shape *s;
 	glColor3ub(90,140,90);
 
@@ -321,6 +367,8 @@ void render(Game *game)
 	        glEnd();
 	        glPopMatrix();
        }
+
+
 }
 
 
