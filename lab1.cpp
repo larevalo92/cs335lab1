@@ -1,4 +1,8 @@
+//Program: Homework 1
+//Author: Luis Arevalo
 //cs335 Spring 2015 Lab-1
+//Purpose: Creating an Animation waterfall model
+//
 //This program demonstrates the use of OpenGL and XWindows
 //
 //Assignment is to modify this program.
@@ -34,11 +38,14 @@
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 #include <GL/glx.h>
+extern "C" {
+     #include "fonts.h"
+}
 
-#define WINDOW_WIDTH  800
-#define WINDOW_HEIGHT 600
+#define WINDOW_WIDTH  500
+#define WINDOW_HEIGHT 360
 
-#define MAX_PARTICLES 4000
+#define MAX_PARTICLES 9000
 #define GRAVITY 0.1
 
 //X Windows variables
@@ -47,7 +54,6 @@ Window win;
 GLXContext glc;
 
 //Structures
-
 struct Vec {
 	float x, y, z;
 };
@@ -64,6 +70,7 @@ struct Particle {
 };
 
 struct Game {
+        bool button;
 	Shape box[5];
 	Shape circle;
 	Particle particle[MAX_PARTICLES];
@@ -80,7 +87,6 @@ int check_keys(XEvent *e, Game *game);
 void movement(Game *game);
 void render(Game *game);
 
-
 int main(void)
 {
 	int done=0;
@@ -93,15 +99,15 @@ int main(void)
 
 	//declare a box shape
         for(int i =0; i<5; i++){
-	    game.box[i].width = 100;
+	    game.box[i].width = 70;
 	    game.box[i].height = 10;
-	    game.box[i].center.x = 120 + i*65;
-	    game.box[i].center.y = 500 - i*60;
+	    game.box[i].center.x = 60 + i*40;
+	    game.box[i].center.y = 300 - i*45;
 	}
 
-	game.circle.center.x = 550;
-	game.circle.center.y = 50;
-	game.circle.radius = 100;
+	game.circle.center.x = 450;
+	game.circle.center.y = -40;
+	game.circle.radius = 150;
 
 	//start animation
 	while(!done) {
@@ -172,6 +178,8 @@ void init_opengl(void)
 	glOrtho(0, WINDOW_WIDTH, 0, WINDOW_HEIGHT, -1, 1);
 	//Set the screen background color
 	glClearColor(0.1, 0.1, 0.1, 1.0);
+	initialize_fonts();
+
 }
 
 #define rnd() (float)rand() / (float)RAND_MAX
@@ -191,8 +199,8 @@ void makeParticle(Game *game, int x, int y) {
 
 void check_mouse(XEvent *e, Game *game)
 {
-	static int savex = 0;
-	static int savey = 0;
+	//static int savex = 0;
+	//static int savey = 0;
 	//static int n = 0;
 
 	if (e->type == ButtonRelease) {
@@ -212,6 +220,7 @@ void check_mouse(XEvent *e, Game *game)
 		}
 	}
 	//Did the mouse move?
+	/*
 	if (savex != e->xbutton.x || savey != e->xbutton.y) {
 		savex = e->xbutton.x;
 		savey = e->xbutton.y;
@@ -224,6 +233,8 @@ void check_mouse(XEvent *e, Game *game)
 		game->lastMousex = e->xbutton.x; 
 		game->lastMousey = y;
 	}
+	*/
+	
 }
 
 int check_keys(XEvent *e, Game *game)
@@ -235,6 +246,14 @@ int check_keys(XEvent *e, Game *game)
 			return 1;
 		}
 		//You may check other keys here.
+		if(key == XK_b) {
+		    if(!game->button) {
+			game->button = true;
+		    }
+		    else {
+			game->button =false;
+		    }
+		}
 
 	}
 	return 0;
@@ -302,7 +321,14 @@ void movement(Game *game)
 void render(Game *game)
 {
 	float w, h;
+	Rect r;
 	glClear(GL_COLOR_BUFFER_BIT);
+
+	if(game->button) {
+	    for(int i =0; i<5; i++) {
+		makeParticle(game, 5, 330);
+	    }
+	}
 
 	//Draw shapes...
 	static int firsttime = 1;
@@ -333,7 +359,7 @@ void render(Game *game)
 
 
 
-	//draw box, and circle
+	//draw box
 	Shape *s;
 	glColor3ub(90,140,90);
 
@@ -352,6 +378,24 @@ void render(Game *game)
 	    glPopMatrix();
 	}
 
+         glEnable(GL_TEXTURE_2D);
+         //
+         //
+
+         r.bot =  310;
+         r.left = 30;
+         r.center = 0;
+         unsigned int cref = 0x00ffffff;
+         ggprint8b(&r, , 0x003366FF, "Waterfall Model");
+	 r.bot = 310;
+	 r.left =;
+         ggprint8b(&r, 30, cref, "Requirements");
+         ggprint8b(&r, 30, cref, "Design");
+         ggprint8b(&r, 30, cref, "Coding");
+         ggprint8b(&r, 30, cref, "Testing");
+         ggprint8b(&r, 30, cref, "Maintenence");
+
+
 	//draw all particles here
 	for(int i=0; i< game->n; i++){
 	        glPushMatrix();
@@ -367,9 +411,8 @@ void render(Game *game)
 	        glEnd();
 	        glPopMatrix();
        }
-
-
 }
+
 
 
 
