@@ -105,9 +105,9 @@ int main(void)
 	    game.box[i].center.y = 300 - i*45;
 	}
 
-	game.circle.center.x = 450;
-	game.circle.center.y = -40;
-	game.circle.radius = 150;
+	game.circle.center.x = 400;
+	game.circle.center.y = -100;
+	game.circle.radius = 180;
 
 	//start animation
 	while(!done) {
@@ -326,7 +326,7 @@ void render(Game *game)
 
 	if(game->button) {
 	    for(int i =0; i<5; i++) {
-		makeParticle(game, 5, 330);
+		makeParticle(game, 1, 340);
 	    }
 	}
 
@@ -382,18 +382,31 @@ void render(Game *game)
          //
          //
 
-         r.bot =  310;
-         r.left = 30;
-         r.center = 0;
          unsigned int cref = 0x00ffffff;
-         ggprint8b(&r, , 0x003366FF, "Waterfall Model");
-	 r.bot = 310;
-	 r.left =;
-         ggprint8b(&r, 30, cref, "Requirements");
-         ggprint8b(&r, 30, cref, "Design");
-         ggprint8b(&r, 30, cref, "Coding");
-         ggprint8b(&r, 30, cref, "Testing");
-         ggprint8b(&r, 30, cref, "Maintenence");
+	 r.bot = 345;
+	 r.left = 400;
+	 r.center = 0;
+         ggprint8b(&r, 16, 0x003366FF, "Waterfall Model");
+	 r.bot = 295;
+	 r.left = 30;
+	 r.center = 0;
+         ggprint8b(&r, 16, cref, "Requirements");
+	 r.bot = 250;
+	 r.left = 85;
+	 r.center = 0;
+         ggprint8b(&r, 16, cref, "Design");
+	 r.bot = 205;
+	 r.left = 125;
+	 r.center = 0;
+         ggprint8b(&r, 16, cref, "Coding");
+	 r.bot = 160;
+	 r.left = 160;
+	 r.center = 0;
+         ggprint8b(&r, 16, cref, "Testing");
+	 r.bot = 115;
+	 r.left = 190;
+	 r.center = 0;
+         ggprint8b(&r, 16, cref, "Maintenence");
 
 
 	//draw all particles here
